@@ -19,7 +19,7 @@ public class MessageFuture {
 
     private Message message;
 
-    private int errCode;
+    private long errCode;
 
     private long timeout;
 

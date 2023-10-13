@@ -44,9 +44,9 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
 
         if (pduLength > MAX_PDU_LENGTH){
             // 消息太大,可能是无效的消息,清空缓冲区
+            log.warn("数据太大,已经超出"+MAX_PDU_LENGTH+",可能是无效的消息,清空缓冲区......");
             buffer.clear();
         }
-        //
 
         if (pduLength == 0) {
             out.add(message);

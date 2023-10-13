@@ -34,7 +34,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
             if (messageFuture != null) {
                 if (opType == (byte) 0xFE) {
                     byte[] pdu = msg.getPdu();
-                    int errCode = ByteUtil.bytesToInt(pdu, ByteOrder.BIG_ENDIAN);
+                    long errCode = ByteUtil.bytesToLong(pdu, ByteOrder.BIG_ENDIAN);
                     messageFuture.setErrCode(errCode);
                 }
                 messageFuture.setResultMessage(msg);
