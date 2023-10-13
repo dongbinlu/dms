@@ -1,0 +1,7 @@
+server:
+  port: 8070
+
+dms:
+  netty:
+    ip: 127.0.0.1
+    port: 10197

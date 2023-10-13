@@ -1,0 +1,37 @@
+server:
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: dms-client
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+
+  profiles:
+    active:
+      - dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  mvc:
+    format:
+      date: yyyy-MM-dd HH:mm:ss
+    static-path-pattern: /static/**
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    encoding: UTF-8
+    servlet:
+      content-type: text/html;charset=UTF-8
+  task:
+    scheduling:
+      pool:
+        size: 10
+  main:
+    allow-circular-references: true
+

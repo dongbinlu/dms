@@ -1,0 +1,11 @@
+server:
+  port: 8000
+
+dms:
+  rpc:
+    flag: true  # 配置为true时生效，默认不生效
+    ip: 10.0.60.199 # 服务端IP
+    port: 10197 #服务端端口，默认10197
+    timeout: 5 #远程调用超时时间，单位秒，默认3s，注意需按照服务端的超时时间配置，不能大于服务端（10s）超时时间，防止数据丢失
+    worker-id: 1 # 确保在不同的节点上生成唯一的ID，不同服务的SMF配置worker-id配置不能相同
+    initial-size: 1 # socket数量，默认为1个socket，当socket大于1时，按轮询的方式获取socket发送数据
