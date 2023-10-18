@@ -1,5 +1,6 @@
 package com.shudun.dms.frame;
 
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.rpc.RpcRemoting;
@@ -25,7 +26,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
         HeadInfo headInfo = msg.getHeadInfo();
         byte opType = headInfo.getOpType();
-        if (opType == (byte) 0xA3) {
+        if (opType == DmsConstants.MsgTypeEnum.DATA.getCode()) {
 
             long msgId = msg.getHeadInfo().getMsgId();
 

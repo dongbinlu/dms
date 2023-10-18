@@ -1,5 +1,6 @@
 package com.shudun.dms.codec;
 
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.message.TailInfo;
@@ -13,13 +14,11 @@ import java.util.List;
 @Slf4j
 public class MessageDecodeHandler extends ByteToMessageDecoder {
 
-    private final static int MAX_PDU_LENGTH = 1024 * 1204 * 10;
-
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) throws Exception {
 
         // 检查是否接收到了足够的数据以处理一个完整的消息
-        if (buffer.readableBytes() < 81) {
+        if (buffer.readableBytes() < DmsConstants.HEAD_LENGTH) {
             log.warn("数据长度不足,等待更多数据......");
             return;
         }
@@ -31,7 +30,7 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
 
         // 消息头
         HeadInfo headInfo = new HeadInfo();
-        byte[] headData = new byte[81];
+        byte[] headData = new byte[DmsConstants.HEAD_LENGTH];
 
         // 标记当前读取位置
         buffer.markReaderIndex();
@@ -42,9 +41,9 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
         //读取消息长度，以确定消息的边界
         int pduLength = headInfo.getPduLength();
 
-        if (pduLength > MAX_PDU_LENGTH){
+        if (pduLength > DmsConstants.MAX_PDU_LENGTH){
             // 消息太大,可能是无效的消息,清空缓冲区
-            log.warn("数据太大,已经超出"+MAX_PDU_LENGTH+",可能是无效的消息,清空缓冲区......");
+            log.warn("数据太大,已经超出"+DmsConstants.MAX_PDU_LENGTH+",可能是无效的消息,清空缓冲区......");
             buffer.clear();
         }
 
@@ -68,9 +67,8 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
 
         // 消息尾
         byte secureModel = headInfo.getSecureModel();
-        boolean signed = (secureModel & (byte) 0b0001) != 0;
 
-        if (signed) {
+        if (secureModel == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode()) {
             if (buffer.readableBytes() < 4) {
                 log.warn("数据长度不足,等待更多数据......");
                 // 重置读取位置,等待更多数据
@@ -91,4 +89,5 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
         }
         out.add(message);
     }
+
 }

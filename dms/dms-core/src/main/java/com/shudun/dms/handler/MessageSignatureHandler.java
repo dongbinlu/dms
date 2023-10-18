@@ -1,6 +1,7 @@
 package com.shudun.dms.handler;
 
 import com.shudun.dms.channel.IChannel;
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.global.GlobalVariable;
 import com.shudun.dms.handshake.HandShake;
 import com.shudun.dms.message.HeadInfo;
@@ -22,8 +23,7 @@ public class MessageSignatureHandler extends ChannelOutboundHandlerAdapter {
         Message msg = (Message) obj;
         HeadInfo headInfo = msg.getHeadInfo();
         byte secureModel = headInfo.getSecureModel();
-        boolean signed = (secureModel & (byte) 0B00000001) > 0;
-        if (signed && headInfo.getOpType() == (byte) 0xA3) {
+        if (secureModel == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode() && headInfo.getOpType() == DmsConstants.MsgTypeEnum.DATA.getCode()) {
             IChannel iChannel = ctx.channel().attr(GlobalVariable.CHANNEL_KEY).get();
             HandShake handShake = iChannel.getHandShake();
 

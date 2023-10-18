@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties("dms.netty")
+@ConfigurationProperties("dms.server")
 public class NettyProperties {
 
     private String ip;

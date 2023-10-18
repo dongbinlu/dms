@@ -1,5 +1,6 @@
 package com.shudun.dms.frame;
 
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.properties.DmsProperties;
@@ -145,9 +146,9 @@ public class NettyClient {
 
         // 消息头
         HeadInfo headInfo = new HeadInfo();
-        headInfo.setVersion((byte) 1);
+        headInfo.setVersion(DmsConstants.MSG_VERSION);
         // SMF-安全模式不能加密和签名-需在服务端补上加密和签名
-        headInfo.setSecureModel((byte) 0B00000000);
+        headInfo.setSecureModel(DmsConstants.SecureModelEnum.SDM_SECMODE_NOT.getCode());
         headInfo.setRetain(headInfo.getRetain());
         long msgId = snowflakeIdGenerator.generateUniqueId();
         headInfo.setMsgId(msgId);
@@ -156,8 +157,8 @@ public class NettyClient {
         headInfo.setDestId(Arrays.copyOf(deviceId.getBytes(), 32));
         // 源ID,SMF接口源ID为0,服务端处理源ID为0时,将本地ID替换为源ID
         headInfo.setSourceId(Arrays.copyOf(localId, 32));
-        // SMF接口操作类型为0xA5
-        headInfo.setOpType((byte) 0xA3);
+        // SMF接口操作类型为0xA3
+        headInfo.setOpType(DmsConstants.MsgTypeEnum.DATA.getCode());
         msg.setHeadInfo(headInfo);
 
         //消息PDU
@@ -184,7 +185,7 @@ public class NettyClient {
         HeadInfo headInfo = new HeadInfo();
         headInfo.setVersion((byte) 1);
         // SMF-安全模式不能加密和签名-需在服务端补上加密和签名
-        headInfo.setSecureModel((byte) 0B00000100);
+        headInfo.setSecureModel(DmsConstants.SecureModelEnum.SDM_SECMODE_RET.getCode());
         headInfo.setRetain(headInfo.getRetain());
         long msgId = snowflakeIdGenerator.generateUniqueId();
         headInfo.setMsgId(msgId);
@@ -194,7 +195,7 @@ public class NettyClient {
         // 源ID,SMF接口源ID为0,服务端处理源ID为0时,将本地ID替换为源ID
         headInfo.setSourceId(Arrays.copyOf(localId, 32));
         // SMF接口操作类型为0xA5
-        headInfo.setOpType((byte) 0xA3);
+        headInfo.setOpType(DmsConstants.MsgTypeEnum.DATA.getCode());
         msg.setHeadInfo(headInfo);
 
         //消息PDU
@@ -244,9 +245,9 @@ public class NettyClient {
 
         // 消息头
         HeadInfo headInfo = new HeadInfo();
-        headInfo.setVersion((byte) 1);
+        headInfo.setVersion(DmsConstants.MSG_VERSION);
         // SMF-安全模式不能加密和签名-需在服务端补上加密和签名
-        headInfo.setSecureModel((byte) 0B00000100);
+        headInfo.setSecureModel(DmsConstants.SecureModelEnum.SDM_SECMODE_RET.getCode());
         headInfo.setRetain(headInfo.getRetain());
         long msgId = snowflakeIdGenerator.generateUniqueId();
         headInfo.setMsgId(msgId);
@@ -255,13 +256,12 @@ public class NettyClient {
         headInfo.setDestId(Arrays.copyOf("".getBytes(), 32));
         // 源ID,SMF接口源ID为0,服务端处理源ID为0时,将本地ID替换为源ID
         headInfo.setSourceId(Arrays.copyOf("".getBytes(), 32));
-        // SMF接口操作类型为0xA5
-        headInfo.setOpType((byte) 0xF0);
+        headInfo.setOpType(DmsConstants.MsgTypeEnum.GET_LOCAL_ID.getCode());
         msg.setHeadInfo(headInfo);
 
         final MessageFuture messageFuture = new MessageFuture();
         messageFuture.setMessage(msg);
-        messageFuture.setTimeout(3000);
+        messageFuture.setTimeout(TimeUnit.SECONDS.toMillis(dmsProperties.getTimeout()));
 
         futures.put(msgId, messageFuture);
 
@@ -276,7 +276,7 @@ public class NettyClient {
         });
         Message message;
         try {
-            message = messageFuture.get(3, TimeUnit.SECONDS);
+            message = messageFuture.get(dmsProperties.getTimeout(), TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error("get local id response error,msgId:{},errorMsg:{}", msgId, e.getMessage());
             throw new RuntimeException(e);

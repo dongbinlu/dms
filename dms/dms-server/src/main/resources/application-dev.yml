@@ -2,6 +2,6 @@ server:
   port: 8090
 
 dms:
-  netty:
+  server:
     ip: 127.0.0.1
     port: 10197

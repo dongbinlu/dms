@@ -1,5 +1,6 @@
 package com.shudun.dms.codec;
 
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.message.TailInfo;
@@ -28,8 +29,7 @@ public class MessageEncoderHandler extends MessageToByteEncoder<Message> {
             buffer.writeBytes(pdu);
         }
         byte secureModel = headInfo.getSecureModel();
-        boolean signed = (secureModel & (byte) 0B00000001) > 0;
-        if (signed && tailInfo != null && tailInfo.getLength() > 0) {
+        if (secureModel == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode() && tailInfo != null && tailInfo.getLength() > 0) {
             // 消息尾
             buffer.writeInt(tailInfo.getLength());
             buffer.writeBytes(tailInfo.getMsg());

@@ -1,6 +1,7 @@
 package com.shudun.dms.handshake;
 
 import com.shudun.dms.Exception.VerifyMessageException;
+import com.shudun.dms.constant.DmsConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -8,8 +9,9 @@ import java.io.*;
 @Slf4j
 public class ConnectionRequestMessage extends AbstractConnectionRequestMessage {
 
-    private final byte opType = (byte) 0xA1;
-    private final byte secureModel = (byte) 0B00000101;// 需要回复、无加密、已签名
+    private final byte opType = DmsConstants.MsgTypeEnum.CONNECT.getCode();
+    // 需要回复、无加密、已签名
+    private final byte secureModel = (byte) (DmsConstants.SecureModelEnum.SDM_SECMODE_RET.getCode() | DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode());
 
     public ConnectionRequestMessage(HandShake handShake) {
         super(handShake);

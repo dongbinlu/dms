@@ -1,5 +1,6 @@
 package com.shudun.dms.frame;
 
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import io.netty.channel.ChannelHandler;
@@ -20,7 +21,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
         HeadInfo headInfo = msg.getHeadInfo();
         byte opType = headInfo.getOpType();
-        if (opType == (byte) 0xA3) {
+        if (opType == DmsConstants.MsgTypeEnum.DATA.getCode()) {
             log.info("客户端收到数据:{},msgId:{}" ,new String(msg.getPdu()),msg.getHeadInfo().getMsgId());
             // 在这可以判断是否需要回复
             ctx.channel().writeAndFlush(buildResponse(msg));

@@ -1,6 +1,7 @@
 package com.shudun.dms.frame;
 
 import cn.hutool.core.util.ByteUtil;
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.rpc.MessageFuture;
@@ -27,12 +28,14 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
         HeadInfo headInfo = msg.getHeadInfo();
         byte opType = headInfo.getOpType();
-        if (opType == (byte) 0xA3 || opType == (byte) 0xF0 || opType == (byte) 0xFE) {
+        if (opType == DmsConstants.MsgTypeEnum.DATA.getCode() ||
+                opType == DmsConstants.MsgTypeEnum.GET_LOCAL_ID.getCode() ||
+                opType == DmsConstants.MsgTypeEnum.LOCAL_ERROR.getCode()) {
             long msgId = msg.getHeadInfo().getMsgId();
             log.info("收到响应数据,msgId:{}", msgId);
             MessageFuture messageFuture = futures.get(msgId);
             if (messageFuture != null) {
-                if (opType == (byte) 0xFE) {
+                if (opType == DmsConstants.MsgTypeEnum.LOCAL_ERROR.getCode()) {
                     byte[] pdu = msg.getPdu();
                     long errCode = ByteUtil.bytesToLong(pdu, ByteOrder.BIG_ENDIAN);
                     messageFuture.setErrCode(errCode);

@@ -3,6 +3,7 @@ package com.shudun.dms.frame;
 import cn.com.shudun.util.CertTools;
 import com.shudun.dms.channel.IChannel;
 import com.shudun.dms.channel.JavaChannel;
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.global.GlobalVariable;
 import com.shudun.dms.handshake.ConnectionRequestMessage;
 import com.shudun.dms.handshake.ConnectionResponseMessage;
@@ -58,10 +59,10 @@ public class KeyAgreementHandler extends SimpleChannelInboundHandler<Message> {
 
         HeadInfo headInfo = msg.getHeadInfo();
         byte opType = headInfo.getOpType();
-        if (opType == (byte) 0xA2) {
+        if (opType == DmsConstants.MsgTypeEnum.RESPONSE.getCode()) {
             ConnectionResponseMessage connectionResponseMessage = new ConnectionResponseMessage(handShake);
             connectionResponseMessage.decode(msg);
-            log.info("[客户端]" +  ctx.channel().localAddress() + " 密钥协商成功 " + LocalDateTime.now().format(dtf));
+            log.info("[客户端]" + ctx.channel().localAddress() + " 密钥协商成功 " + LocalDateTime.now().format(dtf));
 
         } else {
             ctx.fireChannelRead(msg);

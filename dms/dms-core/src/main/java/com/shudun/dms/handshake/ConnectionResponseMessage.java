@@ -1,13 +1,16 @@
 package com.shudun.dms.handshake;
 
+import com.shudun.dms.constant.DmsConstants;
+
 import java.io.*;
 import java.util.Arrays;
 
 public class ConnectionResponseMessage extends AbstractConnectionResponseMessage {
 
-    private final byte opType = (byte) 0xA2;
+    private final byte opType = DmsConstants.MsgTypeEnum.RESPONSE.getCode();
 
-    private final byte secureModel = (byte) 0B00000001; // 无需回复、无加密、已签名
+    // 无需回复、无加密、已签名
+    private final byte secureModel = DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode();
 
 
     public ConnectionResponseMessage(HandShake handShake) {

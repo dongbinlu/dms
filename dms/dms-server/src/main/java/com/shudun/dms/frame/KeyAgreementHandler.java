@@ -6,6 +6,7 @@ import cn.com.shudun.cert.gmhelper.cert.SM2X509CertMakerImpl;
 import cn.com.shudun.util.CertTools;
 import com.shudun.dms.channel.IChannel;
 import com.shudun.dms.channel.JavaChannel;
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.global.GlobalVariable;
 import com.shudun.dms.handshake.ConnectionRequestMessage;
 import com.shudun.dms.handshake.ConnectionResponseMessage;
@@ -63,7 +64,7 @@ public class KeyAgreementHandler extends SimpleChannelInboundHandler<Message> {
 
         HeadInfo headInfo = msg.getHeadInfo();
         byte opType = headInfo.getOpType();
-        if (opType == (byte) 0xA1) {
+        if (opType == DmsConstants.MsgTypeEnum.CONNECT.getCode()) {
             log.info("[服务端收到客户端]" + ctx.channel().remoteAddress() + " 密钥协商 " + LocalDateTime.now().format(dtf));
 
             handShake = ctx.channel().attr(GlobalVariable.CHANNEL_KEY).get().getHandShake();

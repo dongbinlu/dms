@@ -1,5 +1,6 @@
 package com.shudun.dms.handshake;
 
+import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.message.TailInfo;
@@ -50,8 +51,7 @@ public abstract class AbstractConnectionRequestMessage extends AbstractMessage i
     }
 
     public byte[] decode(Message message) throws IOException {
-        boolean signed = (message.getHeadInfo().getSecureModel() & (byte) 0b0001) > 0;
-        if (signed) {
+        if ((message.getHeadInfo().getSecureModel() == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode())) {
             TailInfo tailInfo = message.getTailInfo();
             byte[] signData = tailInfo.getMsg();
             byte[] toProtected = Arrays.copyOfRange(message.getData(), 0, message.getData().length - 4 - tailInfo.getLength());
