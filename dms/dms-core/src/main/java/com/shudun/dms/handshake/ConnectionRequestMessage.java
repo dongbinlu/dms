@@ -9,9 +9,9 @@ import java.io.*;
 @Slf4j
 public class ConnectionRequestMessage extends AbstractConnectionRequestMessage {
 
-    private final byte opType = DmsConstants.MsgTypeEnum.CONNECT.getCode();
+    private byte opType;
     // 需要回复、无加密、已签名
-    private final byte secureModel = (byte) (DmsConstants.SecureModelEnum.SDM_SECMODE_RET.getCode() | DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode());
+    private byte secureModel;
 
     public ConnectionRequestMessage(HandShake handShake) {
         super(handShake);
@@ -86,11 +86,11 @@ public class ConnectionRequestMessage extends AbstractConnectionRequestMessage {
 
     @Override
     protected byte secureModel() {
-        return this.secureModel;
+        return this.secureModel = (byte) (DmsConstants.SecureModelEnum.SDM_SECMODE_RET.getCode() | DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode());
     }
 
     @Override
     protected byte opType() {
-        return this.opType;
+        return this.opType = DmsConstants.MsgTypeEnum.CONNECT.getCode();
     }
 }

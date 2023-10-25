@@ -25,6 +25,15 @@ public class RPCController {
     @Autowired
     private DmsRpcTemplate dmsRpcTemplate;
 
+    @GetMapping("/hello/{deviceId}")
+    public String getHello(@PathVariable("deviceId") String deviceId) throws Exception {
+        Message message = dmsRpcTemplate.sync(deviceId, "hello 666".getBytes(), 10, TimeUnit.SECONDS);
+        byte[] pdu = message.getPdu();
+        String result = new String(pdu);
+        System.out.println(result);
+        return result;
+    }
+
     @GetMapping("/info/cert/{deviceId}")
     public String getInfo(@PathVariable("deviceId") String deviceId) throws Exception {
 
@@ -45,7 +54,7 @@ public class RPCController {
         }
         byte[] response = null;
         try {
-            Message message = dmsRpcTemplate.sync(deviceId, request,1 * 60, TimeUnit.SECONDS);
+            Message message = dmsRpcTemplate.sync(deviceId, request, 1 * 60, TimeUnit.SECONDS);
             response = message.getPdu();
             log.info("response:{}", response);
         } catch (Exception e) {
@@ -79,6 +88,7 @@ public class RPCController {
         log.info("result: " + value);
         return new String(value);
     }
+
     @GetMapping("/info/name/{deviceId}")
     public String getNameInfo(@PathVariable("deviceId") String deviceId) throws Exception {
 
@@ -99,7 +109,7 @@ public class RPCController {
         }
         byte[] response = null;
         try {
-            Message message = dmsRpcTemplate.sync(deviceId, request,2 * 60, TimeUnit.SECONDS);
+            Message message = dmsRpcTemplate.sync(deviceId, request, 2 * 60, TimeUnit.SECONDS);
             response = message.getPdu();
             log.info("response:{}", response);
         } catch (Exception e) {

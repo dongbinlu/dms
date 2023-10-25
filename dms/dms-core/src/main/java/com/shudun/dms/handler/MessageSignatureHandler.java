@@ -23,7 +23,7 @@ public class MessageSignatureHandler extends ChannelOutboundHandlerAdapter {
         Message msg = (Message) obj;
         HeadInfo headInfo = msg.getHeadInfo();
         byte secureModel = headInfo.getSecureModel();
-        if (secureModel == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode() && headInfo.getOpType() == DmsConstants.MsgTypeEnum.DATA.getCode()) {
+        if ((secureModel & DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode()) != 0 && headInfo.getOpType() == DmsConstants.MsgTypeEnum.DATA.getCode()) {
             IChannel iChannel = ctx.channel().attr(GlobalVariable.CHANNEL_KEY).get();
             HandShake handShake = iChannel.getHandShake();
 

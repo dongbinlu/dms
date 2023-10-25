@@ -4,7 +4,7 @@ import cn.hutool.core.util.ByteUtil;
 import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
-import com.shudun.dms.rpc.MessageFuture;
+import com.shudun.dms.message.MessageFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +41,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
                     messageFuture.setErrCode(errCode);
                 }
                 messageFuture.setResultMessage(msg);
+                futures.remove(msgId);
                 log.info("接收响应数据,msgId:{}", msgId);
             }
         } else {

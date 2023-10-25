@@ -2,7 +2,7 @@ package com.shudun.dms.frame;
 
 import com.shudun.dms.codec.MessageDecodeHandler;
 import com.shudun.dms.codec.MessageEncoderHandler;
-import com.shudun.dms.rpc.MessageFuture;
+import com.shudun.dms.message.MessageFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 
@@ -24,7 +24,6 @@ public class InitHandler extends ChannelInitializer<SocketChannel> {
      */
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        ch.pipeline().addLast(new HighAndLowWaterLevelHandler());//水位线
         ch.pipeline().addLast(new MessageEncoderHandler());
         ch.pipeline().addLast(new MessageDecodeHandler());
         ch.pipeline().addLast(new MessageHandler(futures));

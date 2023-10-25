@@ -41,9 +41,9 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
         //读取消息长度，以确定消息的边界
         int pduLength = headInfo.getPduLength();
 
-        if (pduLength > DmsConstants.MAX_PDU_LENGTH){
+        if (pduLength > DmsConstants.MAX_PDU_LENGTH) {
             // 消息太大,可能是无效的消息,清空缓冲区
-            log.warn("数据太大,已经超出"+DmsConstants.MAX_PDU_LENGTH+",可能是无效的消息,清空缓冲区......");
+            log.warn("数据太大,已经超出" + DmsConstants.MAX_PDU_LENGTH + ",可能是无效的消息,清空缓冲区......");
             buffer.clear();
         }
 
@@ -68,7 +68,7 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
         // 消息尾
         byte secureModel = headInfo.getSecureModel();
 
-        if (secureModel == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode()) {
+        if ((secureModel & DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode()) != 0) {
             if (buffer.readableBytes() < 4) {
                 log.warn("数据长度不足,等待更多数据......");
                 // 重置读取位置,等待更多数据

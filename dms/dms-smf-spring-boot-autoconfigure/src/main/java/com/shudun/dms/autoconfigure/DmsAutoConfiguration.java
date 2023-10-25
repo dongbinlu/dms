@@ -44,9 +44,6 @@ public class DmsAutoConfiguration implements InitializingBean {
         if (StringUtils.isBlank(dmsProperties.getIp())) {
             throw new IllegalArgumentException("dms rpc ip is not allowed to be empty");
         }
-        if (dmsProperties.getWorkerId() < 0 || dmsProperties.getWorkerId() > (-1L ^ (-1L << 6L))) {
-            throw new IllegalArgumentException("dms rpc worker ID must be between 0 and " + (-1L ^ (-1L << 6L)));
-        }
     }
 
 }

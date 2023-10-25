@@ -29,7 +29,7 @@ public class MessageEncoderHandler extends MessageToByteEncoder<Message> {
             buffer.writeBytes(pdu);
         }
         byte secureModel = headInfo.getSecureModel();
-        if (secureModel == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode() && tailInfo != null && tailInfo.getLength() > 0) {
+        if ((secureModel & DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode()) != 0 && tailInfo != null && tailInfo.getLength() > 0) {
             // 消息尾
             buffer.writeInt(tailInfo.getLength());
             buffer.writeBytes(tailInfo.getMsg());

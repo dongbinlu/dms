@@ -16,22 +16,19 @@ public class DmsRpcTemplate implements DmsRpc {
 
     private List<NettyClient> nettyClients = Lists.newArrayList();
 
-    private SnowflakeIdGenerator snowflakeIdGenerator;
-
     private DmsProperties dmsProperties;
 
     private static volatile int index;
 
     public DmsRpcTemplate(DmsProperties dmsProperties) {
         this.dmsProperties = dmsProperties;
-        this.snowflakeIdGenerator = new SnowflakeIdGenerator(dmsProperties.getWorkerId());
     }
 
     public void init() throws Exception {
 
         int initialSize = dmsProperties.getInitialSize();
         for (int i = 0; i < initialSize; i++) {
-            NettyClient nettyClient = new NettyClient(dmsProperties, snowflakeIdGenerator);
+            NettyClient nettyClient = new NettyClient(dmsProperties);
             new Thread(() -> {
                 nettyClient.init();
             }).start();

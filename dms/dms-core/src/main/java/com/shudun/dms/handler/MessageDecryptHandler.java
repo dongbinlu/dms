@@ -18,7 +18,7 @@ public class MessageDecryptHandler extends SimpleChannelInboundHandler<Message> 
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
         HeadInfo headInfo = msg.getHeadInfo();
         byte secureModel = headInfo.getSecureModel();
-        if (secureModel == DmsConstants.SecureModelEnum.SDM_SECMODE_ENC.getCode() && headInfo.getOpType() == DmsConstants.MsgTypeEnum.DATA.getCode()) {
+        if ((secureModel & DmsConstants.SecureModelEnum.SDM_SECMODE_ENC.getCode()) != 0 && headInfo.getOpType() == DmsConstants.MsgTypeEnum.DATA.getCode()) {
             IChannel iChannel = ctx.channel().attr(GlobalVariable.CHANNEL_KEY).get();
             HandShake handShake = iChannel.getHandShake();
             byte[] data = handShake.getAbstractMessageAlgorithm().symmetricDecrypt(handShake.getSecretKey(), msg.getPdu(), handShake.getIv());

@@ -27,12 +27,6 @@ public class DmsProperties {
      */
     private long timeout = 3L;
 
-
-    /**
-     * 工作节点ID，用来生成消息唯一ID
-     */
-    private long workerId;
-
     /**
      * socket数量
      * 默认为1

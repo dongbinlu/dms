@@ -7,10 +7,10 @@ import java.util.Arrays;
 
 public class ConnectionResponseMessage extends AbstractConnectionResponseMessage {
 
-    private final byte opType = DmsConstants.MsgTypeEnum.RESPONSE.getCode();
+    private byte opType;
 
     // 无需回复、无加密、已签名
-    private final byte secureModel = DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode();
+    private byte secureModel;
 
 
     public ConnectionResponseMessage(HandShake handShake) {
@@ -91,11 +91,11 @@ public class ConnectionResponseMessage extends AbstractConnectionResponseMessage
 
     @Override
     protected byte secureModel() {
-        return this.secureModel;
+        return this.secureModel = DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode();
     }
 
     @Override
     protected byte opType() {
-        return this.opType;
+        return this.opType = DmsConstants.MsgTypeEnum.RESPONSE.getCode();
     }
 }

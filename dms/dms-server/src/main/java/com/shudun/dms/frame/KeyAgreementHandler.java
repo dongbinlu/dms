@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
- *
+ * 服务端接收密钥协商请求
  */
 @Slf4j
 public class KeyAgreementHandler extends SimpleChannelInboundHandler<Message> {
@@ -82,6 +82,7 @@ public class KeyAgreementHandler extends SimpleChannelInboundHandler<Message> {
                     if (future.isSuccess()) {
                         // 发送成功后，纳入连接管理中。
                         conntionManager.addChannel(new String(msg.getHeadInfo().getSourceId()).trim(), ctx.channel().attr(GlobalVariable.CHANNEL_KEY).get());
+                        log.info("[服务端完成客户端]" + ctx.channel().remoteAddress() + " 密钥协商 " + LocalDateTime.now().format(dtf));
                     }
                 }
             });

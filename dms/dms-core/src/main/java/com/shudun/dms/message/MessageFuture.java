@@ -1,10 +1,12 @@
-package com.shudun.dms.rpc;
+package com.shudun.dms.message;
 
-import com.shudun.dms.message.Message;
+import cn.hutool.core.util.HexUtil;
+import com.shudun.dms.constant.ErrorCodeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -15,6 +17,7 @@ import java.util.concurrent.TimeoutException;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class MessageFuture {
 
     private Message message;
@@ -36,9 +39,20 @@ public class MessageFuture {
         try {
             result = origin.get(timeout, unit);
         } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+            try {
+                String code = e.getCause().getMessage();
+                ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.getByCode(Long.valueOf(code));
+                String msg = errorCodeEnum.getMsg();
+                log.error(msg + ",错误码:{}", HexUtil.toHex(errorCodeEnum.getCode()));
+                throw new RuntimeException(msg);
+            } catch (NumberFormatException numberFormatException) {
+                throw new RuntimeException(ErrorCodeEnum.SMR_UNKNOWERR.getMsg());
+            } catch (NullPointerException nullPointerException) {
+                throw new RuntimeException(ErrorCodeEnum.SMR_UNKNOWERR.getMsg());
+            }
         } catch (TimeoutException e) {
-            throw new TimeoutException("cost " + (System.currentTimeMillis() - start) + " ms");
+            log.error(ErrorCodeEnum.SMR_COMMFAIL.getMsg() + ",错误码:{},耗时:{} ms", HexUtil.toHex(ErrorCodeEnum.SMR_COMMFAIL.getCode()), (System.currentTimeMillis() - start));
+            throw new TimeoutException(ErrorCodeEnum.SMR_COMMFAIL.getMsg());
         }
         return result;
     }

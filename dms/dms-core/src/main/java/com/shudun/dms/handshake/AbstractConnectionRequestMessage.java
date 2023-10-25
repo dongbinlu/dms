@@ -51,7 +51,7 @@ public abstract class AbstractConnectionRequestMessage extends AbstractMessage i
     }
 
     public byte[] decode(Message message) throws IOException {
-        if ((message.getHeadInfo().getSecureModel() == DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode())) {
+        if ((message.getHeadInfo().getSecureModel() & DmsConstants.SecureModelEnum.SDM_SECMODE_SIGN.getCode()) != 0) {
             TailInfo tailInfo = message.getTailInfo();
             byte[] signData = tailInfo.getMsg();
             byte[] toProtected = Arrays.copyOfRange(message.getData(), 0, message.getData().length - 4 - tailInfo.getLength());
