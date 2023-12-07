@@ -34,7 +34,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
         }
     }
     private Message buildErrorResponse(Message msg) {
-        byte[] pdu = ByteUtil.longToBytes(ErrorCodeEnum.SMR_NOSUCHDEV.getCode(), ByteOrder.BIG_ENDIAN);
+        byte[] pdu = ByteUtil.intToBytes(ErrorCodeEnum.SMR_NOSUCHDEV.getCode(), ByteOrder.BIG_ENDIAN);
         // 消息头
         HeadInfo headInfo = new HeadInfo();
         headInfo.setVersion((byte) 1);

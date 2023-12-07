@@ -1,6 +1,7 @@
 package com.shudun.dms.channel;
 
 import com.shudun.dms.constant.DmsConstants;
+import com.shudun.dms.global.GlobalVariable;
 import com.shudun.dms.handshake.HandShake;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
@@ -8,6 +9,7 @@ import com.shudun.dms.message.MessageFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.util.Attribute;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,15 +42,20 @@ public class JavaChannel implements IChannel {
         timerExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                List<MessageFuture> timeoutMessageFutures = new ArrayList<>(futures.size());
-                for (MessageFuture future : futures.values()) {
-                    if (future.isTimeout()) {
-                        timeoutMessageFutures.add(future);
+                try {
+                    List<Long> timeoutMessageFutures = new ArrayList<>(futures.size());
+
+                    futures.forEach((key, value) -> {
+                        if (value.isTimeout()) {
+                            timeoutMessageFutures.add(key);
+                        }
+                    });
+
+                    for (Long key : timeoutMessageFutures) {
+                        futures.remove(key);
                     }
-                }
-                for (MessageFuture messageFuture : timeoutMessageFutures) {
-                    futures.remove(messageFuture.getMessage().getHeadInfo().getMsgId());
-                    messageFuture.setMessage(null);
+                } catch (Exception e) {
+                    // do nothing
                 }
             }
         }, TIMEOUT_CHECK_INTERNAL, TIMEOUT_CHECK_INTERNAL, TimeUnit.MILLISECONDS);
@@ -87,7 +94,10 @@ public class JavaChannel implements IChannel {
         // 安全模式
         headInfo.setSecureModel((byte) (DmsConstants.SecureModelEnum.SDM_SECMODE_NORET.getCode() | enc | sign));
         headInfo.setRetain(headInfo.getRetain());
-        msgId = msgId == 0 ? handShake.getMsgId() : msgId;
+
+        Attribute<Long> attribute = channel.attr(GlobalVariable.MSG_KEY);
+
+        msgId = msgId == 0 ? attribute.get() : msgId;
         headInfo.setMsgId(msgId);
         headInfo.setPduLength(data.length);
         // 目的方ID
@@ -141,8 +151,10 @@ public class JavaChannel implements IChannel {
         // 安全模式需回复，要加密和签名
         headInfo.setSecureModel((byte) (DmsConstants.SecureModelEnum.SDM_SECMODE_RET.getCode() | enc | sign));
         headInfo.setRetain(headInfo.getRetain());
-        msgId = msgId == 0 ? handShake.getMsgId() : msgId;
-        headInfo.setMsgId(msgId);
+
+        Attribute<Long> attribute = channel.attr(GlobalVariable.MSG_KEY);
+
+        msgId = msgId == 0 ? attribute.get() : msgId;
         headInfo.setPduLength(data.length);
         // 目的方ID
         headInfo.setDestId(Arrays.copyOf(StringUtils.isBlank(destId) ? handShake.getDestId() : destId.getBytes(), 32));

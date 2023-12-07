@@ -1,6 +1,7 @@
 package com.shudun.dms.controller;
 
 import com.google.common.collect.Maps;
+import com.shudun.dms.constant.AIDEnum;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.rpc.DmsRpcTemplate;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,15 @@ public class RPCController {
 
     @Autowired
     private DmsRpcTemplate dmsRpcTemplate;
+
+    @GetMapping("/get/{deviceId}")
+    public String get(@PathVariable("deviceId") String deviceId) throws Exception {
+
+        HashMap<Long, byte[]> resultMap = dmsRpcTemplate.get(deviceId, new long[]{AIDEnum.SDM_AID_Dev_Cert.getCode()});
+        byte[] bytes = resultMap.get(AIDEnum.SDM_AID_Dev_Name.getCode());
+        return new String(bytes);
+
+    }
 
     @GetMapping("/hello/{deviceId}")
     public String getHello(@PathVariable("deviceId") String deviceId) throws Exception {

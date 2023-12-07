@@ -1,12 +1,14 @@
 package com.shudun.dms.codec;
 
 import com.shudun.dms.constant.DmsConstants;
+import com.shudun.dms.global.GlobalVariable;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
 import com.shudun.dms.message.TailInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -38,6 +40,10 @@ public class MessageDecodeHandler extends ByteToMessageDecoder {
         buffer.readBytes(headData);
         headInfo.decode(headData);
         message.setHeadInfo(headInfo);
+
+        Attribute<Long> attribute = ctx.channel().attr(GlobalVariable.MSG_KEY);
+        attribute.set(headInfo.getMsgId());
+
         //读取消息长度，以确定消息的边界
         int pduLength = headInfo.getPduLength();
 

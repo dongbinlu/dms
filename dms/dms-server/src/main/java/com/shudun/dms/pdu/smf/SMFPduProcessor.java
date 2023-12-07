@@ -50,7 +50,7 @@ public class SMFPduProcessor implements PduProcessor {
             log.warn("目标不可达:{}", new String(destId).trim());
             iChannel.oneway(new String(headInfo.getDestId()).trim(),
                     new String(headInfo.getSourceId()).trim(),
-                    ByteUtil.longToBytes(ErrorCodeEnum.SMR_NOROUTE.getCode(), ByteOrder.BIG_ENDIAN),
+                    ByteUtil.intToBytes(ErrorCodeEnum.SMR_NOROUTE.getCode(), ByteOrder.BIG_ENDIAN),
                     headInfo.getMsgId(),
                     DmsConstants.MsgTypeEnum.LOCAL_ERROR.getCode(),
                     DmsConstants.SecureModelEnum.SDM_SECMODE_NOENC.getCode(),

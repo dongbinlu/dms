@@ -15,6 +15,9 @@
         <module>dms-smf-spring-boot-autoconfigure</module>
         <module>dms-smf-spring-boot-starter</module>
         <module>dms-smf-test</module>
+        <module>dms-client-spring-boot-autoconfigure</module>
+        <module>dms-client-spring-boot-starter</module>
+        <module>dms-client-test</module>
     </modules>
 
     <properties>
@@ -24,7 +27,7 @@
 
         <dms.version>1.0-SNAPSHOT</dms.version>
         <org.springframework.cloud.version>Greenwich.SR3</org.springframework.cloud.version>
-        <org.springframework.boot.version>2.1.3.RELEASE</org.springframework.boot.version>
+        <org.springframework.boot.version>2.7.3</org.springframework.boot.version>
         <org.apache.maven.plugins.version>3.3</org.apache.maven.plugins.version>
         <io.netty.version>4.1.35.Final</io.netty.version>
         <org.apache.commons.version>3.8.1</org.apache.commons.version>
@@ -37,6 +40,7 @@
         <spring.boot.maven.plugin.version>2.1.3.RELEASE</spring.boot.maven.plugin.version>
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
         <com.google.guava.version>30.1-jre</com.google.guava.version>
+        <cn.hutool.version>5.7.6</cn.hutool.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -74,6 +78,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
                 <version>${spring.boot.maven.plugin.version}</version>
             </plugin>
         </plugins>

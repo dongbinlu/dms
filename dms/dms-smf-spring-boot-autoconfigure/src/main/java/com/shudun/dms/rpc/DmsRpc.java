@@ -2,6 +2,7 @@ package com.shudun.dms.rpc;
 
 import com.shudun.dms.message.Message;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public interface DmsRpc {
@@ -13,7 +14,7 @@ public interface DmsRpc {
      * 因此通常用于可以重试，或者定时通知类的场景，调用过程是有可能因为网络问题，机器故障等原因，导致请求失败。
      * 业务场景需要能接受这样的异常场景，才可以使用。
      *
-     * @param data     PDU
+     * @param data PDU
      */
     void oneway(String deviceId, byte[] data);
 
@@ -42,6 +43,18 @@ public interface DmsRpc {
      * @return
      */
     Message sync(String deviceId, byte[] data) throws Exception;
+
+    /**
+     * 0050 get操作消息
+     *
+     * @param deviceId 设备ID
+     * @param aids
+     * @return
+     * @throws Exception
+     */
+    HashMap<Long, byte[]> get(String deviceId, long[] aids) throws Exception;
+
+    HashMap<Long, byte[]> get(String deviceId, long[] aids, long timeout, TimeUnit unit) throws Exception;
 
 
 }

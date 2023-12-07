@@ -69,17 +69,17 @@ public enum ErrorCodeEnum {
 
     SMR_AUDIT_MANAGE_BASE(ErrorCodeEnum.SMR_BASE.code + 0x00000500, "日志管理");
 
-    private long code;
+    private int code;
 
     private String msg;
 
 
-    ErrorCodeEnum(long code, String msg) {
+    ErrorCodeEnum(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public static ErrorCodeEnum getByCode(long code) {
+    public static ErrorCodeEnum getByCode(int code) {
         ErrorCodeEnum[] errorCodes = ErrorCodeEnum.values();
         for (ErrorCodeEnum errorCode : errorCodes) {
             if (errorCode.code == code) {
@@ -88,7 +88,7 @@ public enum ErrorCodeEnum {
         }
         return null;
     }
-    public long getCode() {
+    public int getCode() {
         return this.code;
     }
 

@@ -22,7 +22,7 @@ public class MessageFuture {
 
     private Message message;
 
-    private long errCode;
+    private int errCode;
 
     private long timeout;
 
@@ -41,7 +41,7 @@ public class MessageFuture {
         } catch (ExecutionException e) {
             try {
                 String code = e.getCause().getMessage();
-                ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.getByCode(Long.valueOf(code));
+                ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.getByCode(Integer.valueOf(code));
                 String msg = errorCodeEnum.getMsg();
                 log.error(msg + ",错误码:{}", HexUtil.toHex(errorCodeEnum.getCode()));
                 throw new RuntimeException(msg);

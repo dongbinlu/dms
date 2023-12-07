@@ -56,7 +56,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
             if (messageFuture != null) {
                 if (opType == DmsConstants.MsgTypeEnum.LOCAL_ERROR.getCode()) {
                     byte[] pdu = msg.getPdu();
-                    long errCode = ByteUtil.bytesToLong(pdu, ByteOrder.BIG_ENDIAN);
+                    int errCode = ByteUtil.bytesToInt(pdu, ByteOrder.BIG_ENDIAN);
                     messageFuture.setErrCode(errCode);
                 }
                 messageFuture.setResultMessage(msg);

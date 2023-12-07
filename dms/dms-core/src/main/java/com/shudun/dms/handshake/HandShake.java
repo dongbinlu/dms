@@ -26,40 +26,64 @@ public class HandShake {
 
     private AbstractMessageAlgorithm abstractMessageAlgorithm;
 
-    // 目的方ID
+    /**
+     * 目的方ID
+     */
     private byte[] destId = new byte[32];
 
-    // 发送方ID
+    /**
+     * 发送方ID
+     */
     private byte[] sourceId = new byte[32];
 
-    // 本端签名公钥
+    /**
+     * 本端签名公钥
+     */
     private PublicKey localSignPk;
 
-    // 本端签名私钥
+    /**
+     * 本端签名私钥
+     */
     private PrivateKey localSignSk;
 
-    // 本端加密公钥
+    /**
+     * 本端加密公钥
+     */
     private PublicKey localEncPk;
 
-    // 本端加密私钥
+    /**
+     * 本端加密私钥
+     */
     private PrivateKey localEncSk;
 
-    // 对端签名公钥
+    /**
+     * 对端签名公钥
+     */
     private PublicKey peerSignPk;
 
-    // 对端加密公钥
+    /**
+     * 对端加密公钥
+     */
     private PublicKey peerEncPk;
 
-    // 随机数A -16字节
+    /**
+     * 随机数A -16字节
+     */
     private byte[] randA;
 
-    // 随机数B - 16字节
+    /**
+     * 随机数B - 16字节
+     */
     private byte[] randB;
 
-    // 会话密钥
+    /**
+     * 会话密钥
+     */
     private byte[] secretKey;
 
-    // 算法标识
+    /**
+     * 算法标识
+     */
     private int alg;
 
     private byte[] iv;
@@ -75,12 +99,12 @@ public class HandShake {
         this.peerSignPk = abstractCertMaker.byteConvertPublickey(hsmInfo.getPeerSignPk());
         this.peerEncPk = abstractCertMaker.byteConvertPublickey(hsmInfo.getPeerEncPk());
 
-        this.destId = Arrays.copyOf(hsmInfo.getPeerId(), 32);
-        this.sourceId = Arrays.copyOf(hsmInfo.getLocalId(), 32);
+        this.destId = Arrays.copyOf(hsmInfo.getDestId(), 32);
+        this.sourceId = Arrays.copyOf(hsmInfo.getSourceId(), 32);
 
     }
 
-    public long getMsgId(){
+    public long getMsgId() {
         return atomicMsgId.getAndIncrement();
     }
 

@@ -1,5 +1,6 @@
 package com.shudun.dms.message;
 
+import cn.hutool.core.util.ByteUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteOrder;
 
 /**
  * 消息头
@@ -79,7 +81,9 @@ public class HeadInfo {
             this.version = dataInputStream.readByte();
             this.secureModel = dataInputStream.readByte();
             dataInputStream.read(this.retain);
-            this.msgId = dataInputStream.readLong();
+            byte[] msgId = new byte[8];
+            dataInputStream.readFully(msgId);
+            this.msgId = ByteUtil.bytesToLong(msgId, ByteOrder.BIG_ENDIAN);;
             this.pduLength = dataInputStream.readInt();
             dataInputStream.read(this.destId);
             dataInputStream.read(this.sourceId);

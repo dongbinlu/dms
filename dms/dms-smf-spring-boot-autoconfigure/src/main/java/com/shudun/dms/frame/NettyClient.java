@@ -1,5 +1,6 @@
 package com.shudun.dms.frame;
 
+import com.google.common.collect.Maps;
 import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
@@ -12,10 +13,16 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -67,15 +74,20 @@ public class NettyClient {
         timerExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                List<MessageFuture> timeoutMessageFutures = new ArrayList<>(futures.size());
-                for (MessageFuture future : futures.values()) {
-                    if (future.isTimeout()) {
-                        timeoutMessageFutures.add(future);
+                try {
+                    List<Long> timeoutMessageFutures = new ArrayList<>(futures.size());
+
+                    futures.forEach((key, value) -> {
+                        if (value.isTimeout()) {
+                            timeoutMessageFutures.add(key);
+                        }
+                    });
+
+                    for (Long key : timeoutMessageFutures) {
+                        futures.remove(key);
                     }
-                }
-                for (MessageFuture messageFuture : timeoutMessageFutures) {
-                    futures.remove(messageFuture.getMessage().getHeadInfo().getMsgId());
-                    messageFuture.setMessage(null);
+                } catch (Exception e) {
+                    // do nothing
                 }
             }
         }, TIMEOUT_CHECK_INTERNAL, TIMEOUT_CHECK_INTERNAL, TimeUnit.MILLISECONDS);
@@ -139,9 +151,7 @@ public class NettyClient {
     }
 
     public void oneway(String deviceId, byte[] data) {
-        if (this.channel == null || !this.channel.isActive()) {
-            throw new RuntimeException("和服务器还未建立起有效连接!请稍后再试!");
-        }
+        checkChannel();
         final Message msg = new Message();
 
         // 消息头
@@ -175,9 +185,7 @@ public class NettyClient {
     }
 
     public Message sync(String deviceId, byte[] data, long timeout, TimeUnit unit) throws Exception {
-        if (this.channel == null || !this.channel.isActive()) {
-            throw new RuntimeException("和服务器还未建立起有效连接!请稍后再试!");
-        }
+        checkChannel();
         final Message msg = new Message();
 
         // 消息头
@@ -230,15 +238,124 @@ public class NettyClient {
         }
     }
 
+
+    public HashMap<Long, byte[]> get(String deviceId, long[] aids, long timeout, TimeUnit unit) throws Exception {
+        checkChannel();
+        final Message msg = new Message();
+
+        // 消息头
+        HeadInfo headInfo = new HeadInfo();
+        headInfo.setVersion((byte) 1);
+        // SMF-安全模式不能加密和签名-需在服务端补上加密和签名
+        headInfo.setSecureModel(DmsConstants.SecureModelEnum.SDM_SECMODE_RET.getCode());
+        headInfo.setRetain(headInfo.getRetain());
+        long msgId = atomicMsgId.getAndIncrement();
+        headInfo.setMsgId(msgId);
+
+        byte[] data = getData(deviceId, aids);
+
+        headInfo.setPduLength(data.length);
+        // 目的方ID
+        headInfo.setDestId(Arrays.copyOf(deviceId.getBytes(), 32));
+        // 源ID
+        headInfo.setSourceId(Arrays.copyOf(localId, 32));
+        headInfo.setOpType(DmsConstants.MsgTypeEnum.DATA.getCode());
+        msg.setHeadInfo(headInfo);
+
+        //消息PDU
+        msg.setPdu(data);
+
+        final MessageFuture messageFuture = new MessageFuture();
+        messageFuture.setMessage(msg);
+        messageFuture.setTimeout(unit.toMillis(timeout));
+
+        futures.put(msgId, messageFuture);
+
+        ChannelFuture future = this.channel.writeAndFlush(msg);
+        future.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    log.info("数据发送成功,msgId:{}", msgId);
+                }
+            }
+        });
+        if (timeout < 0) {
+            return null;
+        }
+
+        try {
+            Message message = messageFuture.get(timeout, unit);
+            byte[] response = message.getPdu();
+            if (response == null || response.length == 0) {
+                throw new RuntimeException("Wrong get fail!");
+            }
+            return setData(deviceId, response);
+        } catch (Exception e) {
+            log.error("wait response error,deviceId:{},msgId:{},errorMsg:{}", deviceId, msgId, e.getMessage());
+            if (e instanceof TimeoutException) {
+                throw e;
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private byte[] getData(String deviceId, long[] aids) throws Exception {
+        if (StringUtils.isBlank(deviceId) || aids.length == 0 || aids == null) {
+            throw new IllegalArgumentException("aid cannot be empty");
+        }
+        byte[] data;
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             DataOutputStream dataOutputStream = new DataOutputStream(outputStream)) {
+            dataOutputStream.writeByte(0x00);
+            dataOutputStream.writeByte(0xB0);
+            for (long aid : aids) {
+                dataOutputStream.writeLong(aid);
+            }
+            data = outputStream.toByteArray();
+        }
+        return data;
+    }
+
+    private HashMap<Long, byte[]> setData(String deviceId, byte[] data) throws Exception {
+        HashMap<Long, byte[]> resultMap = Maps.newHashMap();
+        try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(data))) {
+            byte header = input.readByte();
+            byte type = input.readByte();
+            if (header != (byte) 0x00 && type != (byte) 0xB2) {
+                throw new RuntimeException("Wrong get error!");
+            }
+            byte flag = input.readByte();
+            // 正常
+            if (flag == 0x00) {
+                while (input.available() > 0) {
+                    long resAid = input.readLong();
+                    int length = input.readInt();
+                    byte[] value = new byte[length];
+                    input.read(value);
+                    resultMap.put(resAid, value);
+                }
+            } else {// 异常 0x01
+                while (input.available() > 0) {
+                    long resAid = input.readLong();
+                    int code = input.readInt();
+                    log.error("GM0050 get,deviceId:{},aid:{},code:{},codeString:{}", deviceId, resAid, code, Integer.toHexString(code));
+                }
+                throw new RuntimeException("Wrong get error!");
+            }
+        }
+        return resultMap;
+    }
+
+
     /**
      * 获取本地ID（中心ID），SMF接口获取数据时需要先获取本地中心ID
      *
      * @return
      */
     public byte[] getLocalId() {
-        if (this.channel == null || !this.channel.isActive()) {
-            throw new RuntimeException("和服务器还未建立起有效连接!请稍后再试!");
-        }
+        checkChannel();
         final Message msg = new Message();
 
         // 消息头
@@ -286,4 +403,11 @@ public class NettyClient {
         this.localId = sourceId;
         return this.localId;
     }
+
+    private void checkChannel() {
+        if (this.channel == null || !this.channel.isActive()) {
+            throw new RuntimeException("和服务器还未建立起有效连接!请稍后再试!");
+        }
+    }
+
 }

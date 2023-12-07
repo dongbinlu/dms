@@ -18,6 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class MessageHandler extends SimpleChannelInboundHandler<Message> {
 
+    /**
+     * 这里通过构造方法将futures传入进来，因为SMF可有连接多个Socket,
+     * 所以每个Sokcet对于一个futures。
+     */
     private ConcurrentHashMap<Long, MessageFuture> futures;
 
     public MessageHandler(ConcurrentHashMap<Long, MessageFuture> futures) {
@@ -37,12 +41,13 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message> {
             if (messageFuture != null) {
                 if (opType == DmsConstants.MsgTypeEnum.LOCAL_ERROR.getCode()) {
                     byte[] pdu = msg.getPdu();
-                    long errCode = ByteUtil.bytesToLong(pdu, ByteOrder.BIG_ENDIAN);
+                    int errCode = ByteUtil.bytesToInt(pdu, ByteOrder.BIG_ENDIAN);
                     messageFuture.setErrCode(errCode);
                 }
                 messageFuture.setResultMessage(msg);
                 futures.remove(msgId);
                 log.info("接收响应数据,msgId:{}", msgId);
+                return;
             }
         } else {
             ctx.fireChannelRead(msg);

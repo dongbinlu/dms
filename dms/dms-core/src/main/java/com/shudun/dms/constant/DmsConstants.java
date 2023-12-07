@@ -1,11 +1,5 @@
 package com.shudun.dms.constant;
 
-import cn.hutool.crypto.digest.SM3;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.util.Base64;
-
 public interface DmsConstants {
 
     // 当前消息版本
@@ -145,21 +139,5 @@ public interface DmsConstants {
             return this.msg;
         }
     }
-
-
-    public static void main(String[] args) throws Exception {
-
-        byte[] bytes = FileUtils.readFileToByteArray(new File("C:\\Users\\v_boy\\Desktop\\1.txt"));
-
-//        SM3Digest sm3Digest = new SM3Digest();
-//        sm3Digest.
-//        sm3Digest.doFinal(bytes)
-        SM3 sm3 = SM3.create();
-        byte[] digest = sm3.digest(bytes);
-        System.out.println(Base64.getEncoder().encodeToString(digest));
-
-
-    }
-
 
 }

@@ -1,5 +1,6 @@
 package com.shudun.dms.codec;
 
+import cn.hutool.core.util.ByteUtil;
 import com.shudun.dms.constant.DmsConstants;
 import com.shudun.dms.message.HeadInfo;
 import com.shudun.dms.message.Message;
@@ -7,6 +8,8 @@ import com.shudun.dms.message.TailInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+
+import java.nio.ByteOrder;
 
 public class MessageEncoderHandler extends MessageToByteEncoder<Message> {
     @Override
@@ -18,7 +21,8 @@ public class MessageEncoderHandler extends MessageToByteEncoder<Message> {
         buffer.writeByte(headInfo.getVersion());
         buffer.writeByte(headInfo.getSecureModel());
         buffer.writeBytes(headInfo.getRetain());
-        buffer.writeLong(headInfo.getMsgId());
+        long msgId = headInfo.getMsgId();
+        buffer.writeBytes(ByteUtil.longToBytes(msgId, ByteOrder.BIG_ENDIAN));
         buffer.writeInt(pdu == null || pdu.length == 0 ? 0 : pdu.length);
         buffer.writeBytes(headInfo.getDestId());
         buffer.writeBytes(headInfo.getSourceId());

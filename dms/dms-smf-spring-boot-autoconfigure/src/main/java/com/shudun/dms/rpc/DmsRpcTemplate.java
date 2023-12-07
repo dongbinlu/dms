@@ -7,6 +7,7 @@ import com.shudun.dms.properties.DmsProperties;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -61,6 +62,17 @@ public class DmsRpcTemplate implements DmsRpc {
     public Message sync(String deviceId, byte[] data, long timeout, TimeUnit unit) throws Exception {
         NettyClient nettyClient = getNettyClient();
         return nettyClient.sync(deviceId, data, timeout, unit);
+    }
+
+    @Override
+    public HashMap<Long, byte[]> get(String deviceId, long[] aids) throws Exception {
+        return this.get(deviceId, aids, dmsProperties.getTimeout(), TimeUnit.SECONDS);
+    }
+
+    @Override
+    public HashMap<Long, byte[]> get(String deviceId, long[] aids, long timeout, TimeUnit unit) throws Exception {
+        NettyClient nettyClient = getNettyClient();
+        return nettyClient.get(deviceId, aids, timeout, unit);
     }
 
     private NettyClient getNettyClient() {
