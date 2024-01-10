@@ -4,7 +4,7 @@ server:
 dms:
   rpc:
     flag: true  # 配置为true时生效，默认不生效
-    ip: 10.1.20.76 # 服务端IP
+    ip: 10.1.110.166 # 服务端IP
     port: 10197 #服务端端口，默认10197
     timeout: 5 #远程调用超时时间，单位秒，默认3s，注意需按照服务端的超时时间配置，不能大于服务端（10s）超时时间，防止数据丢失
     initial-size: 1 # socket数量，默认为1个socket，当socket大于1时，按轮询的方式获取socket发送数据

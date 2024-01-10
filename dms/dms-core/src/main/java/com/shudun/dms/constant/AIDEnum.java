@@ -46,6 +46,10 @@ public enum AIDEnum {
 
     SDM_AID_Dev_Cert(0x0100001400000000L, "被管设备证书"),
 
+    SDM_AID_Dev_Cert_Sign(0x0100001900000000L, "被管设备签名证书"),
+
+    SDM_AID_Dev_Cert_Enc(0x0100001A00000000L, "被管设备加密证书"),
+
     SDM_AID_Inf_Cont(0x0200000100000000L, "接口数目"),
 
     SDM_AID_Inf_Name(0x0200000200000001L, "接口名称"),

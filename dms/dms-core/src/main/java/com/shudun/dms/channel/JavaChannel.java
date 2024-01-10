@@ -26,6 +26,8 @@ public class JavaChannel implements IChannel {
 
     private HandShake handShake;
 
+    // TODO 设计有问题，这样会导致一个socket创建一个线程池。
+    // 写一个工具类处理
     protected final ScheduledExecutorService timerExecutor = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("timeoutChecker", true));
 
     protected final ConcurrentHashMap<Long, MessageFuture> futures = new ConcurrentHashMap<>();

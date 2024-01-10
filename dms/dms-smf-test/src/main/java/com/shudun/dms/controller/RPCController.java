@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -29,9 +30,9 @@ public class RPCController {
     @GetMapping("/get/{deviceId}")
     public String get(@PathVariable("deviceId") String deviceId) throws Exception {
 
-        HashMap<Long, byte[]> resultMap = dmsRpcTemplate.get(deviceId, new long[]{AIDEnum.SDM_AID_Dev_Cert.getCode()});
-        byte[] bytes = resultMap.get(AIDEnum.SDM_AID_Dev_Name.getCode());
-        return new String(bytes);
+        HashMap<Long, byte[]> resultMap = dmsRpcTemplate.get(deviceId, new long[]{AIDEnum.SDM_AID_Dev_Cert_Enc.getCode()});
+        byte[] bytes = resultMap.get(AIDEnum.SDM_AID_Dev_Cert_Enc.getCode());
+        return Base64.getEncoder().encodeToString(bytes);
 
     }
 

@@ -44,6 +44,9 @@ public class DmsAutoConfiguration implements InitializingBean {
         if (StringUtils.isBlank(dmsProperties.getIp())) {
             throw new IllegalArgumentException("dms rpc ip is not allowed to be empty");
         }
+        if (dmsProperties.getInitialSize() <= 0) {
+            throw new IllegalArgumentException("dms rpc initialSize is not allowed to be less than 0");
+        }
     }
 
 }

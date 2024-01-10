@@ -6,6 +6,7 @@ import com.shudun.dms.message.Message;
 import com.shudun.dms.properties.DmsProperties;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +16,9 @@ import java.util.concurrent.TimeUnit;
 @Data
 public class DmsRpcTemplate implements DmsRpc {
 
-    private List<NettyClient> nettyClients = Lists.newArrayList();
+    private static List<NettyClient> nettyClients = Lists.newArrayList();
+
+    private ThreadLocal<Integer> threadLocal = new ThreadLocal<>();
 
     private DmsProperties dmsProperties;
 
@@ -26,7 +29,6 @@ public class DmsRpcTemplate implements DmsRpc {
     }
 
     public void init() throws Exception {
-
         int initialSize = dmsProperties.getInitialSize();
         for (int i = 0; i < initialSize; i++) {
             NettyClient nettyClient = new NettyClient(dmsProperties);
@@ -76,7 +78,11 @@ public class DmsRpcTemplate implements DmsRpc {
     }
 
     private NettyClient getNettyClient() {
+
         NettyClient nettyClient = nettyClients.get(index);
+        if (CollectionUtils.isEmpty(nettyClients)) {
+            throw new RuntimeException("和服务器还未建立起有效连接!请稍后再试!");
+        }
 
         index++;
 
@@ -84,11 +90,24 @@ public class DmsRpcTemplate implements DmsRpc {
         if (index >= nettyClients.size()) {
             index = 0;
         }
-
-        if (!nettyClient.getChannel().isActive()) {
-            getNettyClient();
+        try {
+            if (!nettyClient.getChannel().isActive()) {
+                if (threadLocal.get() == null) {
+                    threadLocal.set(1);
+                } else {
+                    int local = threadLocal.get().intValue();
+                    threadLocal.set(++local);
+                }
+                if (threadLocal.get() > nettyClients.size()) {
+                    throw new RuntimeException("和服务器还未建立起有效连接!请稍后再试!");
+                }
+                getNettyClient();
+            }
+        } finally {
+            if (threadLocal != null) {
+                threadLocal.remove();
+            }
         }
-
         return nettyClient;
     }
 
